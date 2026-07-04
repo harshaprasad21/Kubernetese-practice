@@ -1,0 +1,6 @@
+apiVersion: v2
+name: practice-stack
+description: A Helm chart for our MEAN stack hospital architecture
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

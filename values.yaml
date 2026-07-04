@@ -1,0 +1,50 @@
+# values.yaml 
+backend:
+  name: backend
+  replicaCount: 2
+  image:
+    repository: hashicorp/http-echo
+    tag: latest
+  service:
+    type: LoadBalancer
+  config:
+    ENVIRONMENT: production
+    DB_HOST: mongodb-internal-service
+    DB_PORT: '27017'
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+
+frontend:
+  name: frontend
+  replicaCount: 2
+  image:
+    repository: nginx
+    tag: latest
+  service:
+    type: LoadBalancer
+  config:
+    API_URL: http://backend-service:80/api
+
+mongo:
+  name: mongodb
+  replicaCount: 1
+  image:
+    repository: mongo
+    tag: latest
+  service:
+    type: ClusterIP
+  credentials:
+    USERNAME: admin
+    PASSWORD: password
+
+mongopvclaim:
+  name: mongo-pvc
+  storageSize: 1Gi
+  volumeMode: Filesystem
+  accessMode: ReadWriteOnce
+
+ingress:
+  name: myingress
+  host: mycompany.local

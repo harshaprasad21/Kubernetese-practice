@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.backend.name }}
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.backend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.backend.name }}
+    spec:
+      containers:
+      - name: {{ .Values.backend.name }}
+        image: {{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}
+        args:
+        - "-text=Hello from the API backend!on port 5678"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5678
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.backend.name }}-config
+        - secretRef:
+            name: {{ .Values.mongo.name }}-credentials
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.backend.name }}-service
+spec:
+  type: {{ .Values.backend.service.type }}
+  selector:
+    app: {{ .Values.backend.name }}
+  ports:
+  - port: 80
+    targetPort: 5678
+

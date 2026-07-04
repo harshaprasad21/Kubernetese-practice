@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.mongo.name }}-pvc
+spec:
+  storageClassName: gp3
+  resources:
+    requests:
+      storage: {{ .Values.mongo.storageSize | default "1Gi" }}
+  volumeMode: {{ .Values.mongo.volumeMode | default "Filesystem" }}
+  accessModes:
+    - {{ .Values.mongo.accessMode | default "ReadWriteOnce" }}
