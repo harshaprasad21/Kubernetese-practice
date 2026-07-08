@@ -3,33 +3,29 @@ kind: Ingress
 metadata:
   name: {{ .Values.ingress.name }}
   annotations:
-    kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # 1. Triggers the AWS Load Balancer Controller
+    kubernetes.io/ingress.class: alb
+    # 2. Makes the ALB public-facing
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    # 3. Routes traffic directly to the Pod IP addresses
+    alb.ingress.kubernetes.io/target-type: ip
   labels:
     app.kubernetes.io/name: {{ .Values.ingress.name }}
 spec:
-  tls:
-  - hosts:
-    - {{ .Values.ingress.host }}
-    secretName: {{ .Values.ingress.name }}-tls-secret
-
-  ingressClassName: nginx
   rules:
-  - host: {{ .Values.ingress.host }} 
-    http:
+  - http:
       paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Values.frontend.name }}-service
-            port:
-              number: 80
       - path: /api
         pathType: Prefix
         backend:
           service:
             name: {{ .Values.backend.name }}-service
+            port:
+              number: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.frontend.name }}-service
             port:
               number: 80
